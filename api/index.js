@@ -2,19 +2,19 @@ import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 
 const app = express();
+app.use(cookieParser());
 
 // Middleware
 app.use(cors());
 app.use(express.json()); // for parsing application/json
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
+mongoose.connect("mongodb+srv://samyakadhau2003:ZD8rVXkSzXGSSahM@eplq.4o28y.mongodb.net/?retryWrites=true&w=majority&appName=eplq", {
 }).then(() => {
   console.log('Database connected');
 }).catch(err => {
