@@ -3,7 +3,17 @@ import mongoose from 'mongoose';
 const adminSchema = new mongoose.Schema({
   username: { type: String, required: true },
   password: { type: String, required: true },
-  // Other fields as necessary
-});
+  profilePicture: {
+    type: String,
+    default:
+      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png',
+  },
+  isAdmin: {
+    type: Boolean,
+    default: false,
+  },
+},{timestamps:true}
+  
+);
 
 export default mongoose.model('Admin', adminSchema);

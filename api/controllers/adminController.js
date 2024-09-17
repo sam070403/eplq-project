@@ -1,4 +1,4 @@
-import Admin from '../models/Admin.js';
+import Admin from '../models/admin.js';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import multer from 'multer';
@@ -17,6 +17,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Admin Register
+// Admin Register
 export const register = async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -26,8 +27,8 @@ export const register = async (req, res) => {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    // 2. Check if the user already exists
-    const existingUser = await User.findOne({ email });
+    // 2. Check if the admin already exists
+    const existingUser = await Admin.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: 'User already exists' });
     }
@@ -36,24 +37,25 @@ export const register = async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // 4. Create a new user
-    const newUser = new User({
+    // 4. Create a new admin
+    const newUser = new Admin({
       username,
       email,
       password: hashedPassword,
     });
 
-    // 5. Save the user to the database
+    // 5. Save the admin to the database
     await newUser.save();
 
     // 6. Respond with success
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     // Handle any errors
-    console.error('Error registering user:', error);
+    console.error('Error registering admin:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
+
 
 // Admin Login
 export const signin = async (req, res, next) => {
@@ -62,7 +64,7 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(400, 'All fields are required'));
   }
   try {
-      const validUser = await User.findOne({ username });
+      const validUser = await Admin.findOne({ username });
       if (!validUser) {
           return next(errorHandler(400, 'User not found'));
       }
@@ -102,7 +104,7 @@ export const uploadData = async (req, res) => {
 export const google = async (req, res, next) => {
   const { email, name, googlePhotoUrl } = req.body;
   try {
-      const user = await User.findOne({ email });
+      const user = await Admin.findOne({ email });
       if (user) {
           const token = jwt.sign(
               { id: user._id, isAdmin: user.isAdmin },
@@ -120,7 +122,7 @@ export const google = async (req, res, next) => {
               Math.random().toString(36).slice(-8) +
               Math.random().toString(36).slice(-8);
           const hashedPassword = bcryptjs.hashSync(generatedPassword, 10);
-          const newUser = new User({
+          const newUser = new Admin({
               username: name.toLowerCase().split(' ').join('') + Math.random().toString(9).slice(-4),
               email,
               password: hashedPassword,

@@ -1,8 +1,56 @@
-import React from 'react';
+import React,{useState} from 'react';
 import { FaGoogle } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
+import{Link,useNavigate} from "react-router-dom";
+
+
 
 export default function Signup() {
+  const[loading,setLoading]=useState(false);
+  const navigate=useNavigate();
+  const[errorMessage,setErrorMessage]=useState(null);
+
+  const [formData, setFormData] = useState({});
+
+  const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
+
+  
+
+  const handleChange=(e)=>{
+    setFormData({...formData,[e.target.id]:e.target.value.trim()})};
+
+  const handleSubmit =async(e)=>{
+    e.preventDefault();
+    if(!formData.username||!formData.email||!formData.password){
+      return setErrorMessage('Please fill all the fields');
+    }
+    try{
+      setLoading(true);
+      setErrorMessage(null);
+      const res=await fetch('/api/admin/register',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body: JSON.stringify(formData),
+      });
+      const data=await res.json();
+      setLoading(false);
+      if(data.success===false){
+        return setErrorMessage(data.message);
+      }
+      if(res.ok){
+        navigate('/signin');
+      }
+      
+    }catch(error){
+      setErrorMessage(data.message);
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-r from-purple-400 via-blue-500 to-indigo-600 flex items-center justify-center">
       <div className="bg-white dark:bg-gray-900 rounded-lg shadow-lg flex w-full max-w-6xl">
@@ -26,13 +74,31 @@ export default function Signup() {
           </h2>
 
           {/* Signup Form */}
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label
+                htmlFor="username"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+               Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="username"
+                onChange={handleChange}
+              />
+            </div>
+
             <div>
               <label
                 htmlFor="email"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300"
               >
-                Email address
+                Email
               </label>
               <input
                 id="email"
@@ -40,7 +106,8 @@ export default function Signup() {
                 type="email"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="you@example.com"
+                placeholder="you@gmail.com"
+                onChange={handleChange}
               />
             </div>
 
@@ -58,25 +125,12 @@ export default function Signup() {
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                 placeholder="********"
+                onChange={handleChange}
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="confirm-password"
-                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
-              >
-                Confirm Password
-              </label>
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:bg-gray-800 dark:border-gray-600 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                placeholder="********"
-              />
-            </div>
+            {error && <p className="text-red-500">{error}</p>}
+          {success && <p className="text-green-500">{success}</p>}
 
             <button
               type="submit"
